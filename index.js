@@ -1,20 +1,36 @@
 const express = require('express');
 const app = express(); //con esto creo mi servidor
+const morgan = require('morgan');
 
-app.listen(3000, () => {
-    console.log('Server on port  3000');
-});
+//settings
+app.set('PORT', 3000);
+
+app.set('view engine', 'ejs'); //motor de plantillas
 
 //middleware
-app.use(express.json());
+app.use(express.json()); //siempre entra aqui y convierte la informacion para json y poderla procesar
 
+app.use(morgan('dev'));     //morgan supple la funcion logger y app.all para ver todas mis peticiones
+//primero pasa por este middleware
+// function logger(req, res, next) {
+    //     console.log(`Ruta recibida: ${req.protocol}://${req.get('host')}${req.originalUrl}`);
+    //     next();
+    // }
+    
+    
+// app.all('/', (req, res, next) => {
+    //     console.log('siempre entrara');
+//     next();
+// });
 
-app.all('/', (req, res, next) => {
-    console.log('siem,pre entrara');
-    next();
-});
+// app.use(logger);
 
-app.get(('/') , (req, res) => {
+app.get('/', (req, res) => {
+    res.render('index.ejs');
+})
+
+//routes
+app.get(('/user') , (req, res) => {
     res.json({
         user: 'yorsh',
         apellido: 'Reynoso'
@@ -31,7 +47,7 @@ app.post('/user/:id', (req, res) => {
     const param = req.params;
     const body = req.body;
     console.log(body, param );
-
+    
     res.send('peticion post, envio formulario');
 });
 
@@ -47,4 +63,10 @@ app.delete('/user/:userId', (req, res) => {
     const params = req.params;
     console.log(`se elimino el usuario ${params.userId} con exito`);
     res.send('peticion delete');
+});
+
+app.use(express.static('public'));
+
+app.listen(app.get('PORT'), () => {
+    console.log('Server on port', app.get('PORT'));
 });
